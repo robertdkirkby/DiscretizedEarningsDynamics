@@ -1,5 +1,6 @@
-
-% This code is to be run after 'EarningsDynamics.m'.
+%% Create all the results for paper
+% This code is to be run after 'EarningsDynamics.m' (which needs to be run
+% 6 times, for useModel=1,2,3,4,5,6)
 % It takes all the output generated and saved by that script and uses it to
 % create the results reported in the paper.
 
@@ -193,7 +194,7 @@ for useModel=useModel_vec
     end
     
     %% Miscellaneous things
-        
+    
     % To compare to US inequality statistics we want to keep
     InequalityStats_TableRaw.(['model',num2str(useModel)])=AllStats;
     
@@ -320,6 +321,11 @@ for useModel=useModel_vec
     ConsumptionInequality(9,useModel)=LorenzCurve_Consumption(100)-LorenzCurve_Consumption(99); % 99-100
 end
 
+% Change the units (5% as 5 rather than 0.05)
+EarningsInequality(2:end,:)=100*EarningsInequality(2:end,:); % (1,:) is the Gini coeff
+IncomeInequality(2:end,:)=100*IncomeInequality(2:end,:); % (1,:) is the Gini coeff
+AssetsInequality(2:end,:)=100*AssetsInequality(2:end,:); % (1,:) is the Gini coeff
+ConsumptionInequality(2:end,:)=100*ConsumptionInequality(2:end,:); % (1,:) is the Gini coeff
 
 %Table: Inequality Version 1: By concept
 FID = fopen('./SavedOutput/LatexInputs/EarningsDynamics_InequalityV1.tex', 'w');
@@ -328,34 +334,38 @@ fprintf(FID, '\\begin{tabular*}{1.00\\textwidth}{@{\\extracolsep{\\fill}}lcccccc
 fprintf(FID, '& & & & & & & \\multicolumn{3}{c}{Top Groups} \\\\ \\cline{8-10} \n');
 fprintf(FID, '& & \\multicolumn{5}{c}{Quintile} & \\multicolumn{3}{c}{Percentile} \\\\ \\cline{3-7} \\cline{8-10} \n');
 fprintf(FID, '              & Gini  & First  & Second & Third & Fourth & Fifth & 90th-95th & 95th-99th & 99th-100th \\\\ \n \\hline \n');
-fprintf(FID, '\\multicolumn{10}{l}{Earnings:} \\\\ \n');
-fprintf(FID, 'Model 1       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,1)');
-fprintf(FID, 'Model 2       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,2)');
-fprintf(FID, 'Model 3       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,3)');
-fprintf(FID, 'Model 4       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,4)');
-fprintf(FID, 'Model 5       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,5)');
-fprintf(FID, 'Model 6       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,6)');
+fprintf(FID, '\\multicolumn{10}{l}{\textbf{Earnings:}} \\\\ \n');
+fprintf(FID, 'US Data       & 0.67  & -0.1  & 3.0   & 10.4  & 20.2  & 66.5  & 12.4  & 18.4  & 18.8  \\\\ \n');
+fprintf(FID, 'Model 1       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,1)');
+fprintf(FID, 'Model 2       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,2)');
+fprintf(FID, 'Model 3       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,3)');
+fprintf(FID, 'Model 4       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,4)');
+fprintf(FID, 'Model 5       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,5)');
+fprintf(FID, 'Model 6       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,6)');
 fprintf(FID, '\\multicolumn{10}{l}{Income:} \\\\ \n');
-fprintf(FID, 'Model 1       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,1)');
-fprintf(FID, 'Model 2       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,2)');
-fprintf(FID, 'Model 3       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,3)');
-fprintf(FID, 'Model 4       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,4)');
-fprintf(FID, 'Model 5       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,5)');
-fprintf(FID, 'Model 6       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,6)');
+fprintf(FID, 'US Data       & 0.58  & 3.0   & 6.5   & 10.9  & 18.1  & 61.4  & 10.8  & 16.5  & 19.7  \\\\ \n');
+fprintf(FID, 'Model 1       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,1)');
+fprintf(FID, 'Model 2       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,2)');
+fprintf(FID, 'Model 3       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,3)');
+fprintf(FID, 'Model 4       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,4)');
+fprintf(FID, 'Model 5       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,5)');
+fprintf(FID, 'Model 6       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,6)');
 fprintf(FID, '\\multicolumn{10}{l}{Wealth:} \\\\ \n');
-fprintf(FID, 'Model 1       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,1)');
-fprintf(FID, 'Model 2       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,2)');
-fprintf(FID, 'Model 3       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,3)');
-fprintf(FID, 'Model 4       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,4)');
-fprintf(FID, 'Model 5       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,5)');
-fprintf(FID, 'Model 6       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,6)');
+fprintf(FID, 'US Data       & 0.85  & -0.7  & 0.6   & 3.2   & 9.8   & 87.0  & 12.1  & 27.4  & 35.5  \\\\ \n');
+fprintf(FID, 'Model 1       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,1)');
+fprintf(FID, 'Model 2       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,2)');
+fprintf(FID, 'Model 3       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,3)');
+fprintf(FID, 'Model 4       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,4)');
+fprintf(FID, 'Model 5       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,5)');
+fprintf(FID, 'Model 6       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,6)');
 fprintf(FID, '\\multicolumn{10}{l}{Consumption:} \\\\ \n');
-fprintf(FID, 'Model 1       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,1)');
-fprintf(FID, 'Model 2       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,2)');
-fprintf(FID, 'Model 3       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,3)');
-fprintf(FID, 'Model 4       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,4)');
-fprintf(FID, 'Model 5       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,5)');
-fprintf(FID, 'Model 6       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,6)');
+fprintf(FID, 'US Data       & 0.32  & --  & --   & --   & --   & --  & --  & --  & --  \\\\ \n');
+fprintf(FID, 'Model 1       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,1)');
+fprintf(FID, 'Model 2       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,2)');
+fprintf(FID, 'Model 3       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,3)');
+fprintf(FID, 'Model 4       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,4)');
+fprintf(FID, 'Model 5       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,5)');
+fprintf(FID, 'Model 6       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,6)');
 fprintf(FID, '\\hline \n \\end{tabular*} \n');
 fprintf(FID, '\\begin{minipage}[t]{1.00\\textwidth}{\\baselineskip=.5\\baselineskip \\vspace{.3cm} \\footnotesize{ \n');
 fprintf(FID, 'Note: Income equals earnings plus interest income on assets. \n');
@@ -370,35 +380,35 @@ fprintf(FID, '& & & & & & & \\multicolumn{3}{c}{Top Groups} \\\\ \\cline{8-10} \
 fprintf(FID, '& & \\multicolumn{5}{c}{Quintile} & \\multicolumn{3}{c}{(Percentile)} \\\\ \\cline{3-7} \\cline{8-10} \n');
 fprintf(FID, '              & Gini  & First  & Second & Third & Fourth & Fifth & 90th-95th & 95th-99th & 99th-100th \\\\ \n \\hline \n');
 fprintf(FID, '\\multicolumn{10}{l}{Model 1:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,1)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,1)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,1)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,1)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,1)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,1)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,1)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,1)');
 fprintf(FID, '\\multicolumn{10}{l}{Model 2:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,2)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,2)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,2)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,2)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,2)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,2)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,2)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,2)');
 fprintf(FID, '\\multicolumn{10}{l}{Model 3:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,3)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,3)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,3)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,3)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,3)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,3)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,3)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,3)');
 fprintf(FID, '\\multicolumn{10}{l}{Model 4:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,4)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,4)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,4)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,4)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,4)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,4)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,4)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,4)');
 fprintf(FID, '\\multicolumn{10}{l}{Model 5:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,5)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,5)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,5)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,5)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,5)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,5)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,5)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,5)');
 fprintf(FID, '\\multicolumn{10}{l}{Model 6:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,6)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,6)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,6)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,6)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,6)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,6)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,6)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,6)');
 fprintf(FID, '\\hline \n \\end{tabular*} \n');
 fprintf(FID, '\\begin{minipage}[t]{1.00\\textwidth}{\\baselineskip=.5\\baselineskip \\vspace{.3cm} \\footnotesize{ \n');
 fprintf(FID, 'Note: Income equals earnings plus interest income on assets. \n');
@@ -441,6 +451,12 @@ for useModel=useModel_vec
     ConsumptionInequality(9,useModel)=LorenzCurve_Consumption(100)-LorenzCurve_Consumption(99); % 99-100
 end
 
+% Change the units (5% as 5 rather than 0.05)
+EarningsInequality(2:end,:)=100*EarningsInequality(2:end,:); % (1,:) is the Gini coeff
+IncomeInequality(2:end,:)=100*IncomeInequality(2:end,:); % (1,:) is the Gini coeff
+AssetsInequality(2:end,:)=100*AssetsInequality(2:end,:); % (1,:) is the Gini coeff
+ConsumptionInequality(2:end,:)=100*ConsumptionInequality(2:end,:); % (1,:) is the Gini coeff
+
 %Table: Working Age Inequality Version 1: By concept
 FID = fopen('./SavedOutput/LatexInputs/EarningsDynamics_WorkingAgeInequalityV1.tex', 'w');
 fprintf(FID, 'Working Age Inequality:  Share of X held by quintile/top percent \\\\ \n');
@@ -449,33 +465,33 @@ fprintf(FID, '& & & & & & & \\multicolumn{3}{c}{Top Groups} \\\\ \\cline{8-10} \
 fprintf(FID, '& & \\multicolumn{5}{c}{Quintile} & \\multicolumn{3}{c}{(Percentile)} \\\\ \\cline{3-7} \\cline{8-10} \n');
 fprintf(FID, '              & Gini  & First  & Second & Third & Fourth & Fifth & 90th-95th & 95th-99th & 99th-100th \\\\ \n \\hline \n');
 fprintf(FID, '\\multicolumn{10}{l}{Earnings:} \\\\ \n');
-fprintf(FID, 'Model 1       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,1)');
-fprintf(FID, 'Model 2       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,2)');
-fprintf(FID, 'Model 3       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,3)');
-fprintf(FID, 'Model 4       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,4)');
-fprintf(FID, 'Model 5       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,5)');
-fprintf(FID, 'Model 6       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,6)');
+fprintf(FID, 'Model 1       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,1)');
+fprintf(FID, 'Model 2       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,2)');
+fprintf(FID, 'Model 3       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,3)');
+fprintf(FID, 'Model 4       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,4)');
+fprintf(FID, 'Model 5       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,5)');
+fprintf(FID, 'Model 6       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,6)');
 fprintf(FID, '\\multicolumn{10}{l}{Income:} \\\\ \n');
-fprintf(FID, 'Model 1       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,1)');
-fprintf(FID, 'Model 2       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,2)');
-fprintf(FID, 'Model 3       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,3)');
-fprintf(FID, 'Model 4       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,4)');
-fprintf(FID, 'Model 5       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,5)');
-fprintf(FID, 'Model 6       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,6)');
+fprintf(FID, 'Model 1       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,1)');
+fprintf(FID, 'Model 2       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,2)');
+fprintf(FID, 'Model 3       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,3)');
+fprintf(FID, 'Model 4       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,4)');
+fprintf(FID, 'Model 5       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,5)');
+fprintf(FID, 'Model 6       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,6)');
 fprintf(FID, '\\multicolumn{10}{l}{Wealth:} \\\\ \n');
-fprintf(FID, 'Model 1       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,1)');
-fprintf(FID, 'Model 2       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,2)');
-fprintf(FID, 'Model 3       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,3)');
-fprintf(FID, 'Model 4       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,4)');
-fprintf(FID, 'Model 5       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,5)');
-fprintf(FID, 'Model 6       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,6)');
+fprintf(FID, 'Model 1       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,1)');
+fprintf(FID, 'Model 2       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,2)');
+fprintf(FID, 'Model 3       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,3)');
+fprintf(FID, 'Model 4       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,4)');
+fprintf(FID, 'Model 5       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,5)');
+fprintf(FID, 'Model 6       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,6)');
 fprintf(FID, '\\multicolumn{10}{l}{Consumption:} \\\\ \n');
-fprintf(FID, 'Model 1       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,1)');
-fprintf(FID, 'Model 2       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,2)');
-fprintf(FID, 'Model 3       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,3)');
-fprintf(FID, 'Model 4       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,4)');
-fprintf(FID, 'Model 5       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,5)');
-fprintf(FID, 'Model 6       & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,6)');
+fprintf(FID, 'Model 1       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,1)');
+fprintf(FID, 'Model 2       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,2)');
+fprintf(FID, 'Model 3       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,3)');
+fprintf(FID, 'Model 4       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,4)');
+fprintf(FID, 'Model 5       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,5)');
+fprintf(FID, 'Model 6       & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,6)');
 fprintf(FID, '\\hline \n \\end{tabular*} \n');
 fprintf(FID, '\\begin{minipage}[t]{1.00\\textwidth}{\\baselineskip=.5\\baselineskip \\vspace{.3cm} \\footnotesize{ \n');
 fprintf(FID, 'Note: Income equals earnings plus interest income on assets. \n');
@@ -490,40 +506,92 @@ fprintf(FID, '& & & & & & & \\multicolumn{3}{c}{Top Groups} \\\\ \\cline{8-10} \
 fprintf(FID, '& & \\multicolumn{5}{c}{Quintile} & \\multicolumn{3}{c}{(Percentile)} \\\\ \\cline{3-7} \\cline{8-10} \n');
 fprintf(FID, '              & Gini  & First  & Second & Third & Fourth & Fifth & 90th-95th & 95th-99th & 99th-100th \\\\ \n \\hline \n');
 fprintf(FID, '\\multicolumn{10}{l}{Model 1:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,1)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,1)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,1)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,1)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,1)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,1)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,1)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,1)');
 fprintf(FID, '\\multicolumn{10}{l}{Model 2:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,2)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,2)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,2)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,2)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,2)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,2)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,2)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,2)');
 fprintf(FID, '\\multicolumn{10}{l}{Model 3:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,3)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,3)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,3)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,3)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,3)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,3)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,3)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,3)');
 fprintf(FID, '\\multicolumn{10}{l}{Model 4:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,4)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,4)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,4)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,4)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,4)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,4)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,4)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,4)');
 fprintf(FID, '\\multicolumn{10}{l}{Model 5:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,5)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,5)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,5)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,5)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,5)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,5)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,5)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,5)');
 fprintf(FID, '\\multicolumn{10}{l}{Model 6:} \\\\ \n');
-fprintf(FID, 'Earnings      & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', EarningsInequality(:,6)');
-fprintf(FID, 'Income        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', IncomeInequality(:,6)');
-fprintf(FID, 'Wealth        & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', AssetsInequality(:,6)');
-fprintf(FID, 'Consumption   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', ConsumptionInequality(:,6)');
+fprintf(FID, 'Earnings      & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', EarningsInequality(:,6)');
+fprintf(FID, 'Income        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', IncomeInequality(:,6)');
+fprintf(FID, 'Wealth        & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', AssetsInequality(:,6)');
+fprintf(FID, 'Consumption   & %8.2f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', ConsumptionInequality(:,6)');
 fprintf(FID, '\\hline \n \\end{tabular*} \n');
 fprintf(FID, '\\begin{minipage}[t]{1.00\\textwidth}{\\baselineskip=.5\\baselineskip \\vspace{.3cm} \\footnotesize{ \n');
 fprintf(FID, 'Note: Income equals earnings plus interest income on assets. \n');
 fprintf(FID, '}} \\end{minipage}');
 fclose(FID);
+
+
+%% Look at lifetime earnings inequality
+% To be able to compare to Guvenen, Kaplan, Song & Weidner (2022)
+
+% GKSW2022 do not report lorenz curves, but seem like they would be nice to draw
+figure_c=figure_c+1;
+figure(figure_c)
+legendstr={}; cc=0;
+for useModel=useModel_vec
+    load(['./SavedOutput/Main/LifeTimeEarnings',num2str(useModel),'.mat'], 'LorenzCurve_LifetimeEarnings')
+    if useModel==1
+        plot(LorenzCurve_LifetimeEarnings)
+        hold on
+    else
+        plot(LorenzCurve_LifetimeEarnings)
+    end
+    cc=cc+1; % Just a counter in case not doing all the models
+    legendstr{cc}=['Model ',num2str(useModel)];
+end
+hold off
+legend(legendstr{:},'Location','northwest')
+saveas(figure_c,'./SavedOutput/Graphs/EarningsDynamics_LifetimeEarningsInequality.png')
+
+% GKSW2022 do report interquartile ratio and the std dev of log, so create table of these
+Table_GKSW2022=zeros(6,4); % six models by four measures
+for useModel=useModel_vec
+    load(['./SavedOutput/Main/LifeTimeEarnings',num2str(useModel),'.mat'],'stddev_logLifetimeEarnings','LifetimeEarnings_P75P25ratio','LifetimeEarnings_P90P50ratio','LifetimeEarnings_P50P10ratio')
+
+    Table_GKSW2022(useModel,1)=stddev_logLifetimeEarnings;
+    Table_GKSW2022(useModel,2)=LifetimeEarnings_P75P25ratio;
+    Table_GKSW2022(useModel,3)=LifetimeEarnings_P90P50ratio;
+    Table_GKSW2022(useModel,4)=LifetimeEarnings_P50P10ratio;
+end
+%Table: Lifetime earnings inequality (compare to GKSW2022, Figure 8 and Figure 9)
+FID = fopen('./SavedOutput/LatexInputs/EarningsDynamics_LifetimeEarningsInequality.tex', 'w');
+fprintf(FID, 'Lifetime Earnings Inequality \\\\ \n');
+fprintf(FID, '\\begin{tabular*}{1.00\\textwidth}{@{\\extracolsep{\\fill}}lcccc} \n \\hline \\hline \n');
+fprintf(FID, '  & Std dev of log & interquartile ratio (P75/P25)  & P90/P50 ratio & P50/P10 ratio \\\\ \\hline \n');
+fprintf(FID, 'US Data & 0.80  & 2.75  & 2.50  & 2.90  \\\\ \n');
+fprintf(FID, 'Model 1 & %8.2f & %8.2f & %8.2f & %8.2f \\\\ \n', Table_GKSW2022(1,1), Table_GKSW2022(1,2), Table_GKSW2022(1,4), Table_GKSW2022(1,4));
+fprintf(FID, 'Model 2 & %8.2f & %8.2f & %8.2f & %8.2f \\\\ \n', Table_GKSW2022(2,1), Table_GKSW2022(2,2), Table_GKSW2022(2,4), Table_GKSW2022(2,4));
+fprintf(FID, 'Model 3 & %8.2f & %8.2f & %8.2f & %8.2f \\\\ \n', Table_GKSW2022(3,1), Table_GKSW2022(3,2), Table_GKSW2022(3,4), Table_GKSW2022(3,4));
+fprintf(FID, 'Model 4 & %8.2f & %8.2f & %8.2f & %8.2f \\\\ \n', Table_GKSW2022(4,1), Table_GKSW2022(4,2), Table_GKSW2022(4,4), Table_GKSW2022(4,4));
+fprintf(FID, 'Model 5 & %8.2f & %8.2f & %8.2f & %8.2f \\\\ \n', Table_GKSW2022(5,1), Table_GKSW2022(5,2), Table_GKSW2022(5,4), Table_GKSW2022(5,4));
+fprintf(FID, 'Model 6 & %8.2f & %8.2f & %8.2f & %8.2f \\\\ \n', Table_GKSW2022(6,1), Table_GKSW2022(6,2), Table_GKSW2022(6,4), Table_GKSW2022(6,4));
+fprintf(FID, '\\hline \n \\end{tabular*} \n');
+fprintf(FID, '\\begin{minipage}[t]{1.00\\textwidth}{\\baselineskip=.5\\baselineskip \\vspace{.3cm} \\footnotesize{ \n');
+fprintf(FID, 'Note: Reports measures of lifetime earnings inequality following Guvenen, Kaplan, Song \\& Weidner (2022). The interquartile ratio is the ratio of the 75th percentile to the 25th percentile. \n');
+fprintf(FID, '}} \\end{minipage}');
+fclose(FID);
+
 
 %% Create table about persisitence of poverty
 load ./SavedOutput/Main/RankTransitionProbablities.mat RankTransitionProbablities_TableRaw
@@ -618,10 +686,10 @@ fprintf(FID, 'Consumption Equivalance measure of welfare cost of shocks \\\\ \n'
 fprintf(FID, '\\begin{tabular*}{1.00\\textwidth}{@{\\extracolsep{\\fill}}lcccccc} \n \\hline \\hline \n');
 fprintf(FID, ' \\multicolumn{7}{c}{Eliminating idiosyncratic shocks} \\\\ \n');
 fprintf(FID, 'Model: & 1 & 2 & 3 & 4 & 5 & 6 \\\\ \\hline \n');
-fprintf(FID, 'CEV (\\%) :   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\  \\hline \n', 100*Table_WelfareCEV(1,:) );
+fprintf(FID, 'CEV (\\%) :   & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\  \\hline \n', 100*Table_WelfareCEV(1,:) );
 fprintf(FID, ' \\multicolumn{7}{c}{Further eliminating permanent types} \\\\ \n');
 fprintf(FID, 'Model: & 1 & 2 & 3 & 4 & 5 & 6 \\\\ \\hline \n');
-fprintf(FID, 'CEV (\\%) :   & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f & %8.3f \\\\ \n', 100*Table_WelfareCEV(2,:) );
+fprintf(FID, 'CEV (\\%) :   & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f & %8.1f \\\\ \n', 100*Table_WelfareCEV(2,:) );
 fprintf(FID, '\\hline \n \\end{tabular*} \n');
 fprintf(FID, '\\begin{minipage}[t]{1.00\\textwidth}{\\baselineskip=.5\\baselineskip \\vspace{.3cm} \\footnotesize{ \n');
 fprintf(FID, 'Note: The deterministic model is different for each model. For all models: Set z=0 and epsilon=0. Set upsilon=0 and replace $\\kappa_j$ with the age-conditional mean earnings (so turning off all shocks leaves age-conditional mean earnings unchanged, conditional on permanent type). When further eliminating permanent type all agents get the age-conditional mean earnings (unconditional).  \n');
@@ -698,14 +766,15 @@ end
 FID = fopen('./SavedOutput/LatexInputs/EarningsDynamics_BPPcoeffs.tex', 'w');
 fprintf(FID, 'Consumption Insurance against Income Shocks \\\\ \n');
 fprintf(FID, '\\begin{tabular*}{1.00\\textwidth}{@{\\extracolsep{\\fill}}lcc} \n \\hline \\hline \n');
-fprintf(FID, 'Model & \\multicolumn{2}{c}{BPP2008 Consumption Insurance Coeff.s} \\\\ \n');
+fprintf(FID, ' & \\multicolumn{2}{c}{BPP2008 Consumption Insurance Coeff.s} \\\\ \n');
 fprintf(FID, ' & Persistent & Transitory \\\\ \\hline \n');
-fprintf(FID, '1 & %8.4f & %8.4f \\\\ \n', Table_BPPcoeffs(1,1), Table_BPPcoeffs(1,2));
-fprintf(FID, '2 & %8.4f & %8.4f \\\\ \n', Table_BPPcoeffs(2,1), Table_BPPcoeffs(2,2));
-fprintf(FID, '3 & %8.4f & %8.4f \\\\ \n', Table_BPPcoeffs(3,1), Table_BPPcoeffs(3,2));
-fprintf(FID, '4 & %8.4f & %8.4f \\\\ \n', Table_BPPcoeffs(4,1), Table_BPPcoeffs(4,2));
-fprintf(FID, '5 & %8.4f & %8.4f \\\\ \n', Table_BPPcoeffs(5,1), Table_BPPcoeffs(5,2));
-fprintf(FID, '6 & %8.4f & %8.4f \\\\ \n', Table_BPPcoeffs(6,1), Table_BPPcoeffs(6,2));
+fprintf(FID, 'US Data & 0.36  & 0.95 \\\\ \n');
+fprintf(FID, 'Model 1 & %8.2f & %8.2f \\\\ \n', Table_BPPcoeffs(1,1), Table_BPPcoeffs(1,2));
+fprintf(FID, 'Model 2 & %8.2f & %8.2f \\\\ \n', Table_BPPcoeffs(2,1), Table_BPPcoeffs(2,2));
+fprintf(FID, 'Model 3 & %8.2f & %8.2f \\\\ \n', Table_BPPcoeffs(3,1), Table_BPPcoeffs(3,2));
+fprintf(FID, 'Model 4 & %8.2f & %8.2f \\\\ \n', Table_BPPcoeffs(4,1), Table_BPPcoeffs(4,2));
+fprintf(FID, 'Model 5 & %8.2f & %8.2f \\\\ \n', Table_BPPcoeffs(5,1), Table_BPPcoeffs(5,2));
+fprintf(FID, 'Model 6 & %8.2f & %8.2f \\\\ \n', Table_BPPcoeffs(6,1), Table_BPPcoeffs(6,2));
 fprintf(FID, '\\hline \n \\end{tabular*} \n');
 fprintf(FID, '\\begin{minipage}[t]{1.00\\textwidth}{\\baselineskip=.5\\baselineskip \\vspace{.3cm} \\footnotesize{ \n');
 fprintf(FID, 'Note: Reports consumption insurance coefficients following Blundell, Pistaferri \\& Preston (2008) measuring insurance against persisent and transitory shocks, respectively. Range from 0, representing no insurance, to 1 representing perfect insurance (these are actually 1- the BPP verions, to ease interpretation). \n');
@@ -799,56 +868,6 @@ fclose(FID);
 %     VarLogEarnings_LCP(jj)=var(logY_j);
 %     VarLogCons_LCP(jj)=var(logC_j);
 % end
-
-
-%% Look at lifetime earnings inequality
-% To be able to compare to Guvenen, Kaplan, Song & Weidner (2022)
-
-% GKSW2022 do not report lorenz curves, but seem like they would be nice to draw
-figure_c=figure_c+1;
-figure(figure_c)
-legendstr={}; cc=0;
-for useModel=useModel_vec
-    load(['./SavedOutput/Main/LifeTimeEarnings',num2str(useModel),'.mat'], 'LorenzCurve_LifetimeEarnings')
-    if useModel==1
-        plot(LorenzCurve_LifetimeEarnings)
-        hold on
-    else
-        plot(LorenzCurve_LifetimeEarnings)
-    end
-    cc=cc+1; % Just a counter in case not doing all the models
-    legendstr{cc}=['Model ',num2str(useModel)];
-end
-hold off
-legend(legendstr{:},'Location','northwest')
-saveas(figure_c,'./SavedOutput/Graphs/EarningsDynamics_LifetimeEarningsInequality.png')
-
-% GKSW2022 do report interquartile ratio and the std dev of log, so create table of these
-Table_GKSW2022=zeros(6,4); % six models by four measures
-for useModel=useModel_vec
-    load(['./SavedOutput/Main/LifeTimeEarnings',num2str(useModel),'.mat'],'stddev_logLifetimeEarnings','LifetimeEarnings_P75P25ratio','LifetimeEarnings_P90P50ratio','LifetimeEarnings_P50P10ratio')
-
-    Table_GKSW2022(useModel,1)=stddev_logLifetimeEarnings;
-    Table_GKSW2022(useModel,2)=LifetimeEarnings_P75P25ratio;
-    Table_GKSW2022(useModel,3)=LifetimeEarnings_P90P50ratio;
-    Table_GKSW2022(useModel,4)=LifetimeEarnings_P50P10ratio;
-end
-%Table: Lifetime earnings inequality (compare to GKSW2022, Figure 8 and Figure 9)
-FID = fopen('./SavedOutput/LatexInputs/EarningsDynamics_LifetimeEarningsInequality.tex', 'w');
-fprintf(FID, 'Lifetime Earnings Inequality \\\\ \n');
-fprintf(FID, '\\begin{tabular*}{1.00\\textwidth}{@{\\extracolsep{\\fill}}lcccc} \n \\hline \\hline \n');
-fprintf(FID, 'Model  & Std dev of log & interquartile ratio (P75/P25)  & P90/P50 ratio & P50/P10 ratio \\\\ \\hline \n');
-fprintf(FID, '1 & %8.4f & %8.4f & %8.4f & %8.4f \\\\ \n', Table_GKSW2022(1,1), Table_GKSW2022(1,2), Table_GKSW2022(1,4), Table_GKSW2022(1,4));
-fprintf(FID, '2 & %8.4f & %8.4f & %8.4f & %8.4f \\\\ \n', Table_GKSW2022(2,1), Table_GKSW2022(2,2), Table_GKSW2022(2,4), Table_GKSW2022(2,4));
-fprintf(FID, '3 & %8.4f & %8.4f & %8.4f & %8.4f \\\\ \n', Table_GKSW2022(3,1), Table_GKSW2022(3,2), Table_GKSW2022(3,4), Table_GKSW2022(3,4));
-fprintf(FID, '4 & %8.4f & %8.4f & %8.4f & %8.4f \\\\ \n', Table_GKSW2022(4,1), Table_GKSW2022(4,2), Table_GKSW2022(4,4), Table_GKSW2022(4,4));
-fprintf(FID, '5 & %8.4f & %8.4f & %8.4f & %8.4f \\\\ \n', Table_GKSW2022(5,1), Table_GKSW2022(5,2), Table_GKSW2022(5,4), Table_GKSW2022(5,4));
-fprintf(FID, '6 & %8.4f & %8.4f & %8.4f & %8.4f \\\\ \n', Table_GKSW2022(6,1), Table_GKSW2022(6,2), Table_GKSW2022(6,4), Table_GKSW2022(6,4));
-fprintf(FID, '\\hline \n \\end{tabular*} \n');
-fprintf(FID, '\\begin{minipage}[t]{1.00\\textwidth}{\\baselineskip=.5\\baselineskip \\vspace{.3cm} \\footnotesize{ \n');
-fprintf(FID, 'Note: Reports measures of lifetime earnings inequality following Guvenen, Kaplan, Song \\& Weidner (2022). The interquartile ratio is the ratio of the 75th percentile to the 25th percentile. \n');
-fprintf(FID, '}} \\end{minipage}');
-fclose(FID);
 
 
 

@@ -1,4 +1,4 @@
-function F=EarningsDynamics_ReturnFn(aprime,a,z,upsilon,epsilon,alpha,kappabeta,w,sigma,agej,Jr,pension,incomefloor,r,kappa_j,warmglow1,warmglow2,warmglow3,beta,sj,eta1,eta2,CEV)
+function F=EarningsDynamics_ReturnFn(aprime,a,z,upsilon,epsilon,alpha,kappabeta,w,sigma,agej,Jr,pension,incomefloor,r,kappa_j,warmglow1,warmglow2,warmglow3,beta,sj,eta1,eta2,Jbeq,CEV)
 % Earning dynamics process following GKOS2021
 
 F=-Inf;
@@ -31,9 +31,9 @@ if c>0
 end
 
 % add the warm glow to the return, but only near end of life
-if agej>=Jr+10
-    % Warm glow of bequests
-    warmglow=warmglow1*((aprime-warmglow2)^(1-warmglow3))/(1-warmglow3);
+if agej>=Jbeq
+    % Warm glow of bequests (use functional form of De Nardi (2004))
+    warmglow=warmglow1*((1+aprime/warmglow2)^(1-warmglow3))/(1-warmglow3);
     % Modify for beta and sj (get the warm glow next period if die)
     warmglow=beta*(1-sj)*warmglow;
     % add the warm glow to the return
