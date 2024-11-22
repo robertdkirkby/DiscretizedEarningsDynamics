@@ -7,8 +7,6 @@ addpath(genpath('./MatlabToolkits/'))
 % gpuDevice(1) % reset gpu to clear out memory
 gpuDeviceCount % For some reason server failed to find gpu without this
 
-n_a=501
-
 useModel=5 % Can be: 1,2,3,4,5,6
 % There is also useModel 21 and 22, these are just same as 2, except using extended Farmer-Toda to target 2 and 4 moments respectively
 nSigmaz=2; % Use: 2,3,4 (number of standard deviations for the max and min points of grid used for z)
@@ -45,7 +43,7 @@ Params.J=100-Params.agejshifter; % Number of period in life-cycle
 
 % Grid sizes to use
 n_d=0; % Labor is exogenous
-% n_a=2501; % Endogenous asset holdings
+n_a=2501; % Endogenous asset holdings
 % (I let asset grid be 0 to 5*10^6; with 2501 points the top two points are $6000 apart.)
 
 % Exogenous states
@@ -285,17 +283,15 @@ if doCalib==1
     % “The mean estate value is $94,469, but the median is half as much, $50,000.” (Hurd & Smith, 1999)
     % All the above are 1994 dollars, so need to multiply by 1.485 to get 2010 dollars [https://fred.stlouisfed.org/series/CPIAUCSL#0]
 
-    % Rather than actually target this, I instead target that the
-    % Mean-to-Median ratio averages 94,469/50,000 for assets during the
-    % bequest ages (this is not the same things as it ignores that each of
-    % these ages should be weighted by the probability of dying; but is
-    % close enough).
+    % Rather than actually target this, I instead target that the Mean-to-Median ratio averages 94,469/50,000 for assets during the
+    % bequest ages (this is not the same things as it ignores that each of these ages should be weighted by the probability of dying as that age; but is close enough).
     simoptions.conditionalrestrictions.bequestages=@(aprime,a,z,upsilon,epsilon,agej,Jbeq) (agej>=Jbeq); % ages at which bequests are left
-
-    TargetMoments.AllStats.bequestages.bequest.RatioMeanToMedian=94469/50000; % Note, can just leave them in 1994 dollars, as anyway just using ratio
+    TargetMoments.AllStats.bequestages.bequestamount.RatioMeanToMedian=94469/50000; % Note, can just leave them in 1994 dollars, as anyway just using ratio
+    % Because of how median works, this needs to use bequestamount, not bequest
     
     % Set up FnsToEvaluate
-    FnsToEvaluate.bequest=@(aprime,a,z,upsilon,epsilon,agej,Jbeq) aprime*(agej>=Jbeq); % value of bequests
+    FnsToEvaluate.bequest=@(aprime,a,z,upsilon,epsilon,agej,Jbeq,sj) (1-sj)*aprime*(agej>=Jbeq); % value of bequests
+    FnsToEvaluate.bequestamount=@(aprime,a,z,upsilon,epsilon,agej,Jbeq) aprime*(agej>=Jbeq); % value of bequests (conditional on age and dying)
     FnsToEvaluate.assets=@(aprime,a,z,upsilon,epsilon) a; % a is the current asset holdings
    
     ParametrizePTypeFn=[]; % not needed
@@ -318,12 +314,12 @@ if doCalib==1
     calibresults(2,1)=TargetMoments.AllStats.assets.Mean;
     calibresults(1,2)=AllStats.bequest.Mean;
     calibresults(2,2)=TargetMoments.AllStats.bequest.Mean;
-    calibresults(1,3)=AllStats.bequestages.bequest.RatioMeanToMedian;
-    calibresults(2,3)=TargetMoments.AllStats.bequestages.bequest.RatioMeanToMedian;
-
+    calibresults(1,3)=AllStats.bequestages.bequestamount.RatioMeanToMedian;
+    calibresults(2,3)=TargetMoments.AllStats.bequestages.bequestamount.RatioMeanToMedian;
+    
     % Delete some things we no longer need
     simoptions=rmfield(simoptions,'conditionalrestricitions');
-
+    
     save(['./SavedOutput/Main/Calib',num2str(useModel),'.mat'],'Params','CalibParams','calibsummary','calibresults','FnsToEvaluate')
 else
     load(['./SavedOutput/Main/Calib',num2str(useModel),'.mat'],'Params','CalibParams','calibsummary','calibresults','FnsToEvaluate')
