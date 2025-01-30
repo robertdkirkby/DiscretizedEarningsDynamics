@@ -27,8 +27,8 @@ Note: For reasons unclear 'JustDiscretizeAndEvaluate.m' runs fine on my laptop b
 The codes assume the existence of a bunch of subfolders, the following is a list (hopefully complete) of them:
 - ./SavedOutput/BasicDiscretization/
 - ./SavedOutput/CompareGridSize/
-./SavedOutput/EvaluateDiscretization/
-./SavedOutput/Main/
-./SavedOutput/LatexInputs/
-./SavedOutput/Graphs/
+- ./SavedOutput/EvaluateDiscretization/
+- ./SavedOutput/Main/
+- ./SavedOutput/LatexInputs/
+- ./SavedOutput/Graphs/
 
