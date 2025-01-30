@@ -25,8 +25,8 @@ Note: For reasons unclear 'JustDiscretizeAndEvaluate.m' runs fine on my laptop b
 'DiscretizedEarningDynamics_ExtraAboutz_nz51.pdf' contains a large number of further results on the performance of the discretization method for life-cycle AR(1) with gaussian-mixture shocks (here with 51 grid points).
 
 The codes assume the existence of a bunch of subfolders, the following is a list (hopefully complete) of them:
-./SavedOutput/BasicDiscretization/
-./SavedOutput/CompareGridSize/
+- ./SavedOutput/BasicDiscretization/
+- ./SavedOutput/CompareGridSize/
 ./SavedOutput/EvaluateDiscretization/
 ./SavedOutput/Main/
 ./SavedOutput/LatexInputs/
