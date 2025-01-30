@@ -3,7 +3,7 @@ Codes for paper introducing discretization method for life-cycle AR(1) with gaus
 
 The actual discretization commands are in VFI Toolkit: https://github.com/vfitoolkit/VFIToolkit-matlab/tree/master/DiscretizationMethods
 
-Following is about generating all the results in the paper.
+Following explains how to run the codes to generate all the results in the paper.
 
 First run 'JustDiscretizeAndEvaluate.m'
 This creates all the discretizations, including a variety of grid sizes (n_z) and other settings.
