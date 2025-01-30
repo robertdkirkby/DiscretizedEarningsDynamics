@@ -1,6 +1,6 @@
 # DiscretizedEarningsDynamics
 Codes for paper introducing discretization method for life-cycle AR(1) with gaussian-mixture innovations.
-
+-------------------------------------------------------
 The actual discretization commands are in VFI Toolkit: https://github.com/vfitoolkit/VFIToolkit-matlab/tree/master/DiscretizationMethods
 
 The main discretization method is for life-cycle AR(1) with gaussian-mixture innovations: https://github.com/vfitoolkit/VFIToolkit-matlab/tree/master/DiscretizationMethods/discretizeLifeCycleAR1wGM_KFTT
