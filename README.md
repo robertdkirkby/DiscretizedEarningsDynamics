@@ -10,7 +10,7 @@ This creates all the discretizations, including a variety of grid sizes (n_z) an
 It also produces lots of output that evaluates the different discretizations.
 For each of the six models it is calling 'DiscretizeEarningsDynamicsModel.m' and then 'EvaluateDiscretization.m'.
 
-Then run EarningsDynamics.m six times, changing 'useModel' each time (1,2,3,4,5,6). (line 10)
+Then run EarningsDynamics.m six times, changing 'useModel' each time (set useModel=1,2,3,4,5,6). (line 10)
 I do this with LoadDiscretization=1 (so it just uses the discretization created earlier)
 This calibrates each model, then produces lots of model outputs and saves them in .mat files.
 The EarningsDynamics.m can be run in pieces using 'preCalib','doCalib','SolveVandStationaryDist' and 'CalculateStatistics', which can be set to zero to just reload what was done on a previous run.
