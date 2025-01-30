@@ -27,8 +27,6 @@ Then run 'EarningsDynamics_CreateResults.m' which loads things created previousl
 
 'CompareAccuracyOfGrids.m' creates the Appendix of the paper about accuracy of the discretization for different grid sizes.
 
-Note: For reasons unclear 'JustDiscretizeAndEvaluate.m' runs fine on my laptop but fails on my desktop. Matlab errors are unclear on why this might be?
-
 'DiscretizedEarningDynamics_ExtraAboutz_nz51.pdf' contains a large number of further results on the performance of the discretization method for life-cycle AR(1) with gaussian-mixture shocks (here with 51 grid points).
 
 The codes assume the existence of a bunch of subfolders, the following is a list (hopefully complete) of them:
