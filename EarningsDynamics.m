@@ -7,7 +7,7 @@ addpath(genpath('./MatlabToolkits/'))
 % gpuDevice(1) % reset gpu to clear out memory
 gpuDeviceCount % For some reason server failed to find gpu without this
 
-useModel=5 % Can be: 1,2,3,4,5,6
+useModel=6 % Can be: 1,2,3,4,5,6
 % There is also useModel 21 and 22, these are just same as 2, except using extended Farmer-Toda to target 2 and 4 moments respectively
 nSigmaz=2; % Use: 2,3,4 (number of standard deviations for the max and min points of grid used for z)
 % Note: nSigmaz is really just intended for use with EvaluateDiscretization.
@@ -16,12 +16,12 @@ nSigma_alpha=1; % This was originally 2, but seems to give weird things for mode
 % Typically I always just load the discretization. (A code called 'JustDiscretizeAndEvaluate' creates all the discretizations)
 LoadDiscertization=1 % If 0, then does the discretization, if 1 then just loads the discretization (must be run with 0 before can run with 1)
 % First, some calibration
-preCalib=1; % Pre-calibrate some parameters (note: before this preCalib, the asset grid is riduculous, but doesn't matter since earnings is exogenous as the precalib only needs earnings)
-doCalib=1; % Calibrate some parameters
+preCalib=0 % Pre-calibrate some parameters (note: before this preCalib, the asset grid is ridiculous, but doesn't matter since earnings is exogenous as the precalib only needs earnings)
+doCalib=0 % Calibrate some parameters
 % Next, solve the model
-SolveV=1;
+SolveVandStationaryDist=0 % if 0, loads saved versions from previous run
 % Now, go through all sorts of model outputs
-CalculateStatistics=[1,1,1,1,1,1] % 0 means skip, 1 means calculate (divided it into six parts to make it easier to just run specific bits)
+CalculateStatistics=[1,1,0,0,0,0] % 0 means skip, 1 means calculate (divided it into six parts to make it easier to just run specific bits)
 % 1st, 2nd, 3rd are life-cycle profiles and similar, 4th is simul panel data, 5th consumption insurance using panel data, 6th is welfare calculation
 
 % Because there are a lot of permanent types we will use option that while
@@ -35,6 +35,7 @@ simoptions.numbersims=10^5; % Note: does numbersims per PType (I use 10^5, but t
 vfoptions.divideandconquer=1;
 vfoptions.level1n=25;
 
+
 %% Begin setting up to use VFI Toolkit to solve
 % Lets model agents from age 25 to age 100, so 76 periods
 
@@ -47,13 +48,13 @@ n_a=2501; % Endogenous asset holdings
 % (I let asset grid be 0 to 5*10^6; with 2501 points the top two points are $6000 apart.)
 
 % Exogenous states
-n_z=51; % Persistent earnings shock
+n_z=21; % 51 % Persistent earnings shock
 if useModel==2 || useModel==5 || useModel==6 || useModel==21 || useModel==22
     n_upsilon=2; % non-employment shock
 else
     n_upsilon=1; % unused (no non-employment shock)
 end
-n_epsilon=15; % Transitory earnings shock
+n_epsilon=9; % 15 % Transitory earnings shock
 % n_zupsilonepsilon=[n_z, n_upsilon, n_epsilon];
 n_zupsilon=[n_z, n_upsilon];
 
@@ -199,6 +200,7 @@ AgeWeightsParamNames={'mewj'}; % So VFI Toolkit knows which parameter is the mas
 % Because this is an exogenous labor model, we can just solve once, and based on 
 % this we can accurately hit some of our calibration targets directly.
 % We do this for: median wage, pension, incomefloor
+FnsToEvaluate.earnings=@(aprime,a,z,upsilon,epsilon,w,kappa_j,alpha,kappabeta,agej,Jr) w*(1-upsilon)*exp(kappa_j+alpha+kappabeta+z+epsilon)*(agej<Jr); % labor earnings
 if preCalib==1
     % First, solve the model to get median wage
     % Then set w, incomefloor, and pension, based on this
@@ -208,7 +210,6 @@ if preCalib==1
     StationaryDist=StationaryDist_Case1_FHorz_PType(jequaloneDist,AgeWeightsParamNames,PTypeDistParamNames,Policy,n_d,n_a,n_zupsilon,N_j,N_i,pi_zupsilon_J,Params,simoptions);
 
     disp('All Stats')
-    FnsToEvaluate.earnings=@(aprime,a,z,upsilon,epsilon,w,kappa_j,alpha,kappabeta,agej,Jr) w*(1-upsilon)*exp(kappa_j+alpha+kappabeta+z+epsilon)*(agej<Jr); % labor earnings
     % We want the median earnings, conditional on being employed
     simoptions.conditionalrestrictions.employed=@(aprime,a,z,upsilon,epsilon,agej,Jr) (1-upsilon)*(agej<Jr); % 'employed' (non-employment upsilon is equal to zero; and working age)
     AllStats=EvalFnOnAgentDist_AllStats_FHorz_Case1_PType(StationaryDist, Policy, FnsToEvaluate, Params,n_d,n_a,n_zupsilon,N_j,N_i,d_grid, a_grid, zupsilon_grid_J, simoptions);
@@ -252,6 +253,10 @@ end
 
 
 %% Calibrate the life-cycle model based on calibration targets (part 2)
+% Set up FnsToEvaluate
+FnsToEvaluate.bequest=@(aprime,a,z,upsilon,epsilon,agej,Jbeq,sj) (1-sj)*aprime*(agej>=Jbeq); % value of bequests
+FnsToEvaluate.bequestamount=@(aprime,a,z,upsilon,epsilon,agej,Jbeq) aprime*(agej>=Jbeq); % value of bequests (conditional on age and dying)
+FnsToEvaluate.assets=@(aprime,a,z,upsilon,epsilon) a; % a is the current asset holdings
 if doCalib==1
     % calibrate beta to target aggregate asset-income ratio
     % calibrate two warm-glow parameters for three targets
@@ -289,12 +294,14 @@ if doCalib==1
     TargetMoments.AllStats.bequestages.bequestamount.RatioMeanToMedian=94469/50000; % Note, can just leave them in 1994 dollars, as anyway just using ratio
     % Because of how median works, this needs to use bequestamount, not bequest
     
-    % Set up FnsToEvaluate
-    FnsToEvaluate.bequest=@(aprime,a,z,upsilon,epsilon,agej,Jbeq,sj) (1-sj)*aprime*(agej>=Jbeq); % value of bequests
-    FnsToEvaluate.bequestamount=@(aprime,a,z,upsilon,epsilon,agej,Jbeq) aprime*(agej>=Jbeq); % value of bequests (conditional on age and dying)
-    FnsToEvaluate.assets=@(aprime,a,z,upsilon,epsilon) a; % a is the current asset holdings
-   
     ParametrizePTypeFn=[]; % not needed
+
+    if useModel==6
+        % To speed things up (this model timed out as server has 24hr job limit, rest were fast enough)
+        Params.beta=1;
+        Params.warmglow1=8500;
+        Params.warmglow2=0.001;
+    end
     
     % Perform the calibration
     caliboptions.metric='sum_logratiosquared';
@@ -318,7 +325,7 @@ if doCalib==1
     calibresults(2,3)=TargetMoments.AllStats.bequestages.bequestamount.RatioMeanToMedian;
     
     % Delete some things we no longer need
-    simoptions=rmfield(simoptions,'conditionalrestricitions');
+    simoptions=rmfield(simoptions,'conditionalrestrictions');
     
     save(['./SavedOutput/Main/Calib',num2str(useModel),'.mat'],'Params','CalibParams','calibsummary','calibresults','FnsToEvaluate')
 else
@@ -329,6 +336,8 @@ end
 fprintf('Finished Calibration! \n')
 
 %% Now solve the value function iteration problem and stationary dist
+% Same some minor things
+save(['./SavedOutput/Main/BasicOutput',num2str(useModel),'.mat'], 'n_d','n_a','n_z','n_upsilon','n_epsilon','n_zupsilon','n_alpha','n_kappabeta','N_i','N_j')
 if SolveVandStationaryDist==1
     disp('Solving the Value Fn and Policy Fn')
     tic;
@@ -339,31 +348,43 @@ if SolveVandStationaryDist==1
     StationaryDist=StationaryDist_Case1_FHorz_PType(jequaloneDist,AgeWeightsParamNames,PTypeDistParamNames,Policy,n_d,n_a,n_zupsilon,N_j,N_i,pi_zupsilon_J,Params,simoptions);
     time2=toc
 
-    save(['./SavedOutput/Main/VSave',num2str(useModel),'.mat'],'V','-v7.3')
+    Names_i=fieldnames(Policy);
+    % Don't actually need V for anything, only the first period of it, so just save that and clear the rest to free up space
+    V_age1=struct();
+    for ii=1:N_i
+        V_ii=V.(Names_i{ii});
+        V_age1.(Names_i{ii})=V_ii(:,:,:,:,1);
+    end
+    save(['./SavedOutput/Main/Vage1Save',num2str(useModel),'.mat'],'V_age1','-v7.3')
+    % save(['./SavedOutput/Main/VSave',num2str(useModel),'.mat'],'V','-v7.3')
+    clear V V_ii
+    
     save(['./SavedOutput/Main/PolicySave',num2str(useModel),'.mat'],'Policy','-v7.3')
-    save(['./SavedOutput/Main/RestSave',num2str(useModel),'.mat'],'n_zupsilon','n_epsilon','zupsilon_grid_J','epsilon_grid','pi_zupsilon_J','pi_epsilon','time1')
-    save(['./SavedOutput/Main/StationaryDist',num2str(useModel),'.mat'], 'StationaryDist','jequaloneDist','time2','-v7.3')
+    save(['./SavedOutput/Main/RestSave',num2str(useModel),'.mat'],'n_zupsilon','n_epsilon','zupsilon_grid_J','epsilon_grid','pi_zupsilon_J','pi_epsilon','Names_i')
+    save(['./SavedOutput/Main/StationaryDist',num2str(useModel),'.mat'], 'StationaryDist','jequaloneDist','-v7.3')
+
+    %% Test that Policy is not trying to leave the top of the grid
+    test_PolicyLeavingTopOfGrid=zeros(N_i,5);
+    for ii=1:N_i
+        temp=Policy.(Names_i{ii});
+        tempdist=StationaryDist.(Names_i{ii});
+
+        test_PolicyLeavingTopOfGrid(ii,1)=sum(sum(sum(sum(sum(sum(temp==n_a))))));
+        test_PolicyLeavingTopOfGrid(ii,2)=sum(sum(sum(sum(sum(tempdist(end-49:end,:,:,:,:))))));
+        test_PolicyLeavingTopOfGrid(ii,3)=sum(sum(sum(sum(sum(tempdist(end-99:end,:,:,:,:))))));
+        test_PolicyLeavingTopOfGrid(ii,4)=sum(sum(sum(sum(sum(tempdist(end-199:end,:,:,:,:))))));
+        test_PolicyLeavingTopOfGrid(ii,5)=sum(sum(sum(sum(sum(tempdist(end-299:end,:,:,:,:))))));
+    end
+    save(['./SavedOutput/Main/TestPolicy',num2str(useModel),'.mat'],'test_PolicyLeavingTopOfGrid')
+    clear temp tempdist % free up memory
 else
-    load(['./SavedOutput/Main/VSave',num2str(useModel),'.mat'])
     load(['./SavedOutput/Main/PolicySave',num2str(useModel),'.mat'])
     load(['./SavedOutput/Main/RestSave',num2str(useModel),'.mat'])
     load(['./SavedOutput/Main/StationaryDist',num2str(useModel),'.mat'])
 end
-
-%% Test that Policy is not trying to leave the top of the grid
-Names_i=fieldnames(V);
-test_PolicyLeavingTopOfGrid=zeros(N_i,5);
-for ii=1:N_i
-    temp=Policy.(Names_i{ii});
-    tempdist=StationaryDist.(Names_i{ii});
-    
-    test_PolicyLeavingTopOfGrid(ii,1)=sum(sum(sum(sum(sum(sum(temp==n_a))))));
-    test_PolicyLeavingTopOfGrid(ii,2)=sum(sum(sum(sum(sum(tempdist(end-49:end,:,:,:,:))))));
-    test_PolicyLeavingTopOfGrid(ii,3)=sum(sum(sum(sum(sum(tempdist(end-99:end,:,:,:,:))))));
-    test_PolicyLeavingTopOfGrid(ii,4)=sum(sum(sum(sum(sum(tempdist(end-199:end,:,:,:,:))))));
-    test_PolicyLeavingTopOfGrid(ii,5)=sum(sum(sum(sum(sum(tempdist(end-299:end,:,:,:,:))))));
-end
-save(['./SavedOutput/Main/TestPolicy',num2str(useModel),'.mat'],'test_PolicyLeavingTopOfGrid')
+% NOTE: I no longer keep a saved copy of StationaryDist because it uses too
+% much harddrive space and is anyway easy to create. This does mean you
+% CANNOT set SolveVandStationaryDist=0, but no big deal.
 
 
 %% Now, we want to graph Life-Cycle Profiles
@@ -372,9 +393,6 @@ save(['./SavedOutput/Main/TestPolicy',num2str(useModel),'.mat'],'test_PolicyLeav
 %% FnsToEvaluate are how we say what we want to simulate and graph
 % Note: everything involving earnings needs to include a *(agej<Jr) term
 % Like with return function, we have to include (aprime,a,z) as first inputs, then just any relevant parameters.
-% FnsToEvalute.earnings and assets were set above, following line is a copy-paste for convenience
-% FnsToEvaluate.earnings=@(aprime,a,z,upsilon,epsilon,w,kappa_j,alpha,kappabeta,agej,Jr) w*(1-upsilon)*exp(kappa_j+alpha+kappabeta+z+epsilon)*(agej<Jr); % labor earnings
-% FnsToEvaluate.assets=@(aprime,a,z,upsilon,epsilon) a; % a is the current asset holdings
 FnsToEvaluate.income=@(aprime,a,z,upsilon,epsilon,w,kappa_j,alpha,kappabeta,r,agej,Jr,incomefloor) max(w*(1-upsilon)*exp(kappa_j+alpha+kappabeta+z+epsilon)*(agej<Jr)+r*a,incomefloor); % labor earnings+ r*a
 FnsToEvaluate.consumption=@(aprime,a,z,upsilon,epsilon,alpha,kappabeta,w,agej,Jr,pension,incomefloor,r,kappa_j,eta1,eta2) EarningsDynamics_ConsumptionFn(aprime,a,z,upsilon,epsilon,alpha,kappabeta,w,agej,Jr,pension,incomefloor,r,kappa_j,eta1,eta2); % consumption
 FnsToEvaluate.z=@(aprime,a,z,upsilon,epsilon) z; % AR(1) with gaussian-mixture innovations
@@ -383,7 +401,12 @@ FnsToEvaluate.epsilon=@(aprime,a,z,upsilon,epsilon) epsilon; % transitiory shock
 FnsToEvaluate.deterministicearnings=@(aprime,a,z,upsilon,epsilon,w,kappa_j,alpha,kappabeta,agej,Jr) w*exp(kappa_j+alpha+kappabeta)*(agej<Jr); % the part of earnings which is just deterministic (in terms of age and permanent type)
 FnsToEvaluate.potentialearnings=@(aprime,a,z,upsilon,epsilon,w,kappa_j,alpha,kappabeta,agej,Jr) w*exp(kappa_j+alpha+kappabeta+z+epsilon)*(agej<Jr); % what earnings would be without non-employment shocks
 FnsToEvaluate.disposableincome=@(aprime,a,z,upsilon,epsilon,alpha,kappabeta,w,agej,Jr,pension,incomefloor,r,kappa_j,eta1,eta2) EarningsDynamics_DisposableIncomeFn(aprime,a,z,upsilon,epsilon,alpha,kappabeta,w,agej,Jr,pension,incomefloor,r,kappa_j,eta1,eta2);
-% FnsToEvalute.bequests was set above
+
+% The following four were all set above, just include them here for convience
+% FnsToEvaluate.earnings=@(aprime,a,z,upsilon,epsilon,w,kappa_j,alpha,kappabeta,agej,Jr) w*(1-upsilon)*exp(kappa_j+alpha+kappabeta+z+epsilon)*(agej<Jr); % labor earnings
+% FnsToEvaluate.assets=@(aprime,a,z,upsilon,epsilon) a; % a is the current asset holdings
+% FnsToEvaluate.bequest=@(aprime,a,z,upsilon,epsilon,agej,Jbeq,sj) (1-sj)*aprime*(agej>=Jbeq); % value of bequests
+% FnsToEvaluate.bequestamount=@(aprime,a,z,upsilon,epsilon,agej,Jbeq) aprime*(agej>=Jbeq); % value of bequests (conditional on age and dying)
 
 % We also use log consumption as that way the variance has a nice interpretation as a percentage
 FnsToEvaluate.logconsumption=@(aprime,a,z,upsilon,epsilon,alpha,kappabeta,w,agej,Jr,pension,incomefloor,r,kappa_j,eta1,eta2) log(EarningsDynamics_ConsumptionFn(aprime,a,z,upsilon,epsilon,alpha,kappabeta,w,agej,Jr,pension,incomefloor,r,kappa_j,eta1,eta2)); % log(consumption)
@@ -399,47 +422,44 @@ FnsToEvaluate.alpha=@(aprime,a,z,upsilon,epsilon,alpha) alpha; % check that ptyp
 %% Calculate the life-cycle profiles: by ptype
 if CalculateStatistics(1)==1
     disp('Calculate the life-cycle profiles')
-    if useModel>=5
-        simoptions.lowmemory=1;
-    end
 
+    simoptions.lowmemory=1; % this thing keeps running out of memory, so use lowmemory
+    simoptions.whichstats=ones(1,7); % need to use lower memory versions with such large age-groupings
     tic;
     AgeConditionalStats=LifeCycleProfiles_FHorz_Case1_PType(StationaryDist, Policy, FnsToEvaluate, Params,n_d,n_a,n_zupsilon,N_j,N_i,d_grid, a_grid, zupsilon_grid_J, simoptions);
     time3=toc
-    
-    if useModel>=5
-        simoptions=rmfield(simoptions,'lowmemory');
-    end
+    simoptions=rmfield(simoptions,'whichstats');
+    simoptions=rmfield(simoptions,'lowmemory');
 
     save(['./SavedOutput/Main/AgeConditionalStats',num2str(useModel),'.mat'], 'AgeConditionalStats','-v7.3')
 else
     load(['./SavedOutput/Main/AgeConditionalStats',num2str(useModel),'.mat'])
 end
 
+
 %% Calculate the life-cycle profiles for the working-age population by using the simoptions.agegroupings
 % This is directly comparable to GKOS2021 as their sample is just the working age
 if CalculateStatistics(2)==1
     disp('Calculate the life-cycle profiles for age-groupings')
 
-    if useModel>=5
-        simoptions.lowmemory=1;
-        % simoptions.groupusingtdigest=1; % otherwise run out of memory for models 5 and 6
-    end
     simoptions.agegroupings=[1,Params.Jr]; % Will look at stats for age-group 1 to Params.Jr-1, which is everyone of working age (Params.Jr is first year of retirement)
+    simoptions.whichstats=ones(1,7); % need to use lower memory versions with such large age-groupings
+    simoptions.lowmemory=1; % this thing keeps running out of memory, so use lowmemory
     tic;
     AgeConditionalStats_Grouped_AgeGroupings=LifeCycleProfiles_FHorz_Case1_PType(StationaryDist, Policy, FnsToEvaluate, Params,n_d,n_a,n_zupsilon,N_j,N_i,d_grid, a_grid, zupsilon_grid_J, simoptions);
     time4=toc
     
     save(['./SavedOutput/Main/AgeConditionalStats_Grouped_AgeGroupings',num2str(useModel),'.mat'], 'AgeConditionalStats_Grouped_AgeGroupings','-v7.3')
     
-    if useModel>=5
-        simoptions=rmfield(simoptions,'lowmemory');
-    end
     simoptions=rmfield(simoptions,'agegroupings');
+    simoptions=rmfield(simoptions,'whichstats');
+    simoptions=rmfield(simoptions,'lowmemory');
 else
     load(['./SavedOutput/Main/AgeConditionalStats_Grouped_AgeGroupings',num2str(useModel),'.mat'])
 end
 
+
+%% Some stats on the entire agent dist
 if CalculateStatistics(3)==1
     disp('Calculate AllStats on agent dist')
 
@@ -447,28 +467,29 @@ if CalculateStatistics(3)==1
     AllStats=EvalFnOnAgentDist_AllStats_FHorz_Case1_PType(StationaryDist, Policy, FnsToEvaluate, Params,n_d,n_a,n_zupsilon,N_j,N_i,d_grid, a_grid, zupsilon_grid_J, simoptions);
     time5=toc
     save(['./SavedOutput/Main/VariousStats',num2str(useModel),'.mat'], 'AllStats','-v7.3')
+
+    % only use: earnings, income, assets, consumption
 end
 
 
 %% Create some individual household simulations
 if CalculateStatistics(4)==1
     disp('Create some individual household simulations')
-    tic;
     simoptions.lowmemory=1;
+    
+    tic;
     SimPanelValues=SimPanelValues_FHorz_Case1_PType(jequaloneDist,PTypeDistParamNames,Policy,FnsToEvaluate,Params,n_d,n_a,n_zupsilon,N_j,N_i,d_grid,a_grid,zupsilon_grid_J,pi_zupsilon_J, simoptions);
     time6=toc
     
+    tic;
     simoptions.npoints=5; % Report transition probabilities for quintiles
     RankTransitionProbabilities_Grouped=EvalPanelData_RankTransProbs(SimPanelValues,simoptions);
-        
+    time7=toc
+
+    simoptions=rmfield(simoptions,'lowmemory');
+    simoptions=rmfield(simoptions,'npoints');
+
     save(['./SavedOutput/Main/SimPanelValues',num2str(useModel),'.mat'], 'SimPanelValues','RankTransitionProbabilities_Grouped','-v7.3')
-    if Setmedianwage==0
-        % Params.w=1;
-        keep=(SimPanelValues.earnings>0);
-        modelearnings_conditionalonemployed=SimPanelValues.earnings(logical(keep));
-        modelmedianearnings_conditionalonemployed_wageequal1=median(modelearnings_conditionalonemployed);
-        save(['./SavedOutput/Main/MedianEarnings',num2str(useModel),'_wageequal1.mat'], 'modelmedianearnings_conditionalonemployed_wageequal1')
-    end
 else
     load(['./SavedOutput/Main/SimPanelValues',num2str(useModel),'.mat'])
 end
@@ -476,6 +497,7 @@ end
 
 %% Consumption insurance calculations (based on the simulated panel data)
 if CalculateStatistics(5)==1
+    tic;
     disp('Some calculations based on the simulated panel data')
     % Calculate consumption insurance (two coefficients following BPP2008)
     ConsumptionInsurance_BPP2008coeffs=struct();
@@ -556,12 +578,14 @@ if CalculateStatistics(5)==1
     LifetimeEarnings_P50P10ratio=LifetimeEarningsPercentiles(3)/LifetimeEarningsPercentiles(1);
 
     save(['./SavedOutput/Main/LifeTimeEarnings',num2str(useModel),'.mat'], 'LorenzCurve_LifetimeEarnings','LifetimeEarningsSample','stddev_logLifetimeEarnings','LifetimeEarnings_P75P25ratio','LifetimeEarnings_P90P50ratio','LifetimeEarnings_P50P10ratio')
+
+    time8=toc
 end
 
 
 %%
 % Save various other things about the model
-Names_i=fieldnames(V);
+Names_i=fieldnames(Policy);
 save(['./SavedOutput/Main/GeneralOutput',num2str(useModel),'.mat'], 'Params','vfoptions','simoptions','a_grid','jequaloneDist','PTypeDist','AgeWeightsParamNames','Names_i')
 
 
@@ -570,23 +594,27 @@ save(['./SavedOutput/Main/GeneralOutput',num2str(useModel),'.mat'], 'Params','vf
 % To compare to DeNardi, Fella & Paz-Pardo (2018) results on welfare, we need the value function at age 1.
 % We also need to solve a version without shocks and keep the value function at age 1
 
-% if useModel==3
-%     save ./SavedOutput/DebugCEV.mat
-%     save('./SavedOutput/DebugCEV2.mat','Policy','StationaryDist','V','-v7.3')
-% end
-
 % We turn off all the shocks, and replace the deterministic earnings
 % profiles with the age-conditional mean (for each permanent type)
 if CalculateStatistics(6)==1
+    tic;
+    disp('Welfare costs of shocks')
+    % load(['./SavedOutput/Main/VSave',num2str(useModel),'.mat'])
+    % We don't need V, just the period 1 part
+    load(['./SavedOutput/Main/Vage1Save',num2str(useModel),'.mat'],'V_age1')
+
+
     if useModel==6
         PTypemassvec=Params.statdist_alpha_kappabeta;
     else
         PTypemassvec=Params.statdist_alpha;
     end
+
+    time9a=toc
     
       
     %% Before doing the deterministic versions, solve the risky one lots of time for different possible CEV
-    
+    tic;
     % Loop over possible values of CEV and figure out which is appropriate
     CEV_vec=0:0.01:3; % Consider 0% to 300% (to the nearest percentage points)
     W_vec=zeros(length(CEV_vec),1);
@@ -618,8 +646,11 @@ if CalculateStatistics(6)==1
     FnsToEvaluate_CEVcheck.upsilon=@(aprime,a,z,upsilon,epsilon,w,kappa_j,alpha,kappabeta,agej,Jr) upsilon; % non-employment
     AgeConditionalStats_CEVcheck=LifeCycleProfiles_FHorz_Case1_PType(StationaryDist, Policy, FnsToEvaluate_CEVcheck, Params,n_d,n_a,n_zupsilon,N_j,N_i,d_grid, a_grid, zupsilon_grid_J, simoptions);
     
+    time9b=toc
+
+
     %% Now solve the deterministic versions of the model
-    
+    tic;
     % This problem is simple enough we can just use the default options
     vfoptions=struct();
     simoptions=struct();
@@ -681,8 +712,10 @@ if CalculateStatistics(6)==1
         simoptions=struct();
     end
     
+    time9c=toc
     
     %% Now, turn of z, epsilon and upsilon (will be CEV1)
+    tic;
     % Turn off upsilon
     n_upsilon=1;
     upsilon_grid=0;
@@ -710,7 +743,10 @@ if CalculateStatistics(6)==1
 
     AgeConditionalStats_CEVcheck1=LifeCycleProfiles_FHorz_Case1_PType(StationaryDist_deterministic, Policy_deterministic, FnsToEvaluate_CEVcheck, Params,n_d,n_a,n_zupsilonepsilon,N_j,N_i,d_grid, a_grid, zupsilonepsilon_grid, simoptions);
 
+    time9d=toc
+
     %% Now do a version eliminating z, epsilon, upsilon and permanent types (will be CEV2)
+    tic;
     % Do an alternative version where we also eliminate permanent types (as from the perspective of the 'behind the veil' this is also an uninsurable risk).
     Params=rmfield(Params,'kappa_j');
     Params.kappa_j=log(AgeConditionalStats.earnings.Mean/Params.w);  % log() as in model it is exp(kappa_j+...)
@@ -725,7 +761,11 @@ if CalculateStatistics(6)==1
 
     AgeConditionalStats_CEVcheck2=LifeCycleProfiles_FHorz_Case1(StationaryDist_deterministic2, Policy_deterministic2, FnsToEvaluate_CEVcheck, Params,[],n_d,n_a,n_zupsilonepsilon,N_j,d_grid, a_grid, zupsilonepsilon_grid, simoptions);
 
+    time9e=toc
+
     %% Do the welfare calculations
+    tic;
+
     W=0;
     Wd=0;
     Wd2=0;
@@ -739,11 +779,12 @@ if CalculateStatistics(6)==1
     
     % Note: first, get the age 1 values and average across idiosyncratic shocks
     for ii=1:length(Names_i)
-        V_ii=V.(Names_i{ii});
+        V_ii=V_age1.(Names_i{ii});
+        % V_ii=V.(Names_i{ii});
         V_deterministic_ii=V_deterministic.(Names_i{ii});
         
         % We just want age 1
-        V_ii=V_ii(:,:,:,:,1);
+        % V_ii=V_ii(:,:,:,:,1);
         V_deterministic_ii=V_deterministic_ii(:,:,:,:,1);
         V_deterministic2_ii=V_deterministic2(:,:,:,:,1); % There are no permanent types in deterministic2 so just the same for all
 
@@ -825,6 +866,37 @@ if CalculateStatistics(6)==1
         [max(abs(check31(:))),max(abs(check32(:))),max(abs(check33(:))),max(abs(check34(:))),max(abs(check35(:)))]
     end
 
+    time9f=toc
+
+    time9=time9a+time9b+time9c+time9d+time9e+time9f
+end
+
+
+%% All the runtimes so I can see which parts take more/less time
+fprintf('All the runtimes! \n')
+if SolveVandStationaryDist==1
+    fprintf('value fn:   %3.2f \n', time1)
+    fprintf('agent dist: %3.2f \n', time2)
+end
+if CalculateStatistics(1)==1
+    fprintf('Life-Cycle Profiles: %3.2f \n', time3)
+end
+if CalculateStatistics(2)==1
+    fprintf('Life-Cycle Profiles, group ages: %3.2f \n', time4)
+end
+if CalculateStatistics(3)==1
+    fprintf('AllStats: %3.2f \n', time5)
+end
+if CalculateStatistics(4)==1
+    fprintf('sim panel: %3.2f \n', time6)
+    fprintf('rank transitions: %3.2f \n', time7)
+end
+if CalculateStatistics(5)==1
+    fprintf('consumption insurance: %3.2f \n', time8)
+end
+if CalculateStatistics(6)==1
+    fprintf('welfare eval: %3.2f \n', time9)
+    fprintf('         (breakdown: %3.2f, %3.2f, %3.2f, %3.2f, %3.2f, %3.2f \n', time9a, time9b, time9c, time9d, time9e, time9f)
 end
 
 
