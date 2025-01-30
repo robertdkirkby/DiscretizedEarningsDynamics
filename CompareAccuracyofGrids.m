@@ -117,30 +117,10 @@ FID = fopen('./SavedOutput/LatexInputs/CompareAccuracyofGrids.tex', 'w');
 fprintf(FID, 'Evaluating Quadrature for Different Size Grids \\\\ \n');
 fprintf(FID, '\\begin{tabular*}{1.00\\textwidth}{@{\\extracolsep{\\fill}}lllll} \n \\hline \\hline \n');
 fprintf(FID, ' \\# grid points ($n\\_{}z$) & Autocorr. & Uncondl Mean & Uncondl Variance & Fraction hit 4 moments \\\\ \\hline \n');
-fprintf(FID, ' \\multicolumn{5}{c}{Model 3 with nSigmaz=2} \\\\ \\hline \n');
+fprintf(FID, ' \\multicolumn{5}{c}{Model 5 with nSigmaz=2} \\\\ \\hline \n');
 for i1=1:length(nzvec)
-    fprintf(FID, ' %i & %1.3f & %1.3f & %1.3f & %1.3f \\\\ \n',nzvec(i1), autocorrelation_accuracy(i1,1,3), unconditionalmean_accuracy(i1,1,3), unconditionalvar_accuracy(i1,1,3), Table_disc_fraction4(i1,1,3));
+    fprintf(FID, ' %i & %1.3f & %1.3f & %1.3f & %1.3f \\\\ \n',nzvec(i1), autocorrelation_accuracy(i1,1,3), unconditionalmean_accuracy(i1,1,2), unconditionalvar_accuracy(i1,1,2), Table_disc_fraction4(i1,1,2));
 end
-% fprintf(FID, '\\multicolumn{5}{c}{Model 3 with nSigmaz=3} \\\\ \\hline \n');
-% for i1=1:length(nzvec)
-%     fprintf(FID, ' %i & %1.3f & %1.3f & %1.3f & %1.3f \\\\ \n',nzvec(i1), autocorrelation_accuracy(i1,2,3), unconditionalmean_accuracy(i1,2,3), unconditionalvar_accuracy(i1,2,3), Table_disc_fraction4(i1,2,3));
-% end
-% fprintf(FID, '\\multicolumn{5}{c}{Model 5 with nSigmaz=2} \\\\ \\hline \n');
-% for i1=1:length(nzvec)
-%     fprintf(FID, ' %i & %1.3f & %1.3f & %1.3f & %1.3f \\\\ \n',nzvec(i1), autocorrelation_accuracy(i1,1,5), unconditionalmean_accuracy(i1,1,5), unconditionalvar_accuracy(i1,1,5), Table_disc_fraction4(i1,1,5));
-% end
-% fprintf(FID, '\\multicolumn{5}{c}{Model 5 with nSigmaz=3} \\\\ \\hline \n');
-% for i1=1:length(nzvec)
-%     fprintf(FID, ' %i & %1.3f & %1.3f & %1.3f & %1.3f \\\\ \n',nzvec(i1), autocorrelation_accuracy(i1,2,5), unconditionalmean_accuracy(i1,2,5), unconditionalvar_accuracy(i1,2,5), Table_disc_fraction4(i1,2,5));
-% end
-% fprintf(FID, '\\multicolumn{5}{c}{Model 6 with nSigmaz=2} \\\\ \\hline \n');
-% for i1=1:length(nzvec)
-%     fprintf(FID, ' %i & %1.3f & %1.3f & %1.3f & %1.3f \\\\ \n',nzvec(i1), autocorrelation_accuracy(i1,1,6), unconditionalmean_accuracy(i1,1,6), unconditionalvar_accuracy(i1,1,6), Table_disc_fraction4(i1,1,6));
-% end
-% fprintf(FID, '\\multicolumn{5}{c}{Model 6 with nSigmaz=3} \\\\ \\hline \n');
-% for i1=1:length(nzvec)
-%     fprintf(FID, ' %i & %1.3f & %1.3f & %1.3f & %1.3f \\\\ \n',nzvec(i1), autocorrelation_accuracy(i1,2,6), unconditionalmean_accuracy(i1,2,6), unconditionalvar_accuracy(i1,2,6), Table_disc_fraction4(i1,2,6));
-% end
 fprintf(FID, '\\hline \n \\end{tabular*} \n');
 fprintf(FID, '\\\\ \\begin{minipage}[t]{1.00\\textwidth}{\\baselineskip=.5\\baselineskip \\vspace{.3cm} \\footnotesize{ \n');
 fprintf(FID, 'Note: Accuracy of the autocorrelation coefficient, the unconditional mean and the unconditional variance are evaluated as the deviation from the true value as a fraction of the true value, averaged over ages. ');
