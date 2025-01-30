@@ -54,13 +54,13 @@ if useModel==1 || useModel==11 || useModel==12 % The three are about using diffe
         fellagallipolipanoptions.nSigmas=nSigmaz;
         fellagallipolipanoptions.initialj0sigma_z=Params.sigma_z0;
         % FellaGallipoliPan is extended Rouwenhorst
-        [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1_FellaGallipoliPanTauchen(Params.rho,Params.sigma_eta,n_z,Params.Jr-1,fellagallipolipanoptions);
+        [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1_FellaGallipoliPanTauchen(0,Params.rho,Params.sigma_eta,n_z,Params.Jr-1,fellagallipolipanoptions);
     elseif useModel==11 % Extended Farmer-Toda targetting 2 moments
         kirkbyoptions.nSigmas=nSigmaz;
         kirkbyoptions.initialj0sigma_z=Params.sigma_z0;
         kirkbyoptions.nMoments=2;
         % Kirkby is extended Farmer-Toda
-        [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1_Kirkby(Params.rho,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
+        [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1_KFTT(0,Params.rho,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
         % pi_z_J is n_z-by-n_z-by-J, so pi_z_J(:,:,j) is the transition matrix for age j
         
         % Take a look at how many moments we matched for transitions from each grid point
@@ -74,7 +74,7 @@ if useModel==1 || useModel==11 || useModel==12 % The three are about using diffe
         kirkbyoptions.initialj0sigma_z=Params.sigma_z0;
         kirkbyoptions.nMoments=4; % This is anyway the default
         % Kirkby is extended Farmer-Toda
-        [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1_Kirkby(Params.rho,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
+        [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1_KFTT(0,Params.rho,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
         
         % Take a look at how many moments we matched for transitions from each grid point
         figure(20)
@@ -166,7 +166,7 @@ elseif useModel==2 || useModel==21 || useModel==22 % The three are about using d
         kirkbyoptions.initialj0sigma_z=Params.sigma_z0;
         kirkbyoptions.nMoments=2;
         % Kirkby is extended Farmer-Toda
-        [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1_Kirkby(Params.rho,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
+        [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1_KFTT(0,Params.rho,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
         % pi_z_J is n_z-by-n_z-by-J, so pi_z_J(:,:,j) is the transition matrix for age j
         
         % Take a look at how many moments we matched for transitions from each grid point
@@ -180,7 +180,7 @@ elseif useModel==2 || useModel==21 || useModel==22 % The three are about using d
         kirkbyoptions.initialj0sigma_z=Params.sigma_z0;
         kirkbyoptions.nMoments=4; % This is anyway the default
         % Kirkby is extended Farmer-Toda
-        [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1_Kirkby(Params.rho,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
+        [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1_KFTT(0,Params.rho,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
         % pi_z_J is n_z-by-n_z-by-J, so pi_z_J(:,:,j) is the transition matrix for age j
         
         % Take a look at how many moments we matched for transitions from each grid point
@@ -305,7 +305,7 @@ elseif useModel==3
     Params.mu_eta=Params.mu_eta1; % Using kirkbyoptions.setmixturemutoenforcezeromean=1
     
     kirkbyoptions.nSigmas=nSigmaz;
-    [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1wGM_Kirkby(Params.rho,Params.mixprobs_eta,Params.mu_eta,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
+    [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1wGM_KFTT(0,Params.rho,Params.mixprobs_eta,Params.mu_eta,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
     % pi_z_J is n_z-by-n_z-by-J, so pi_z_J(:,:,j) is the transition matrix for age j    
     
     % Take a look at how many moments we matched for transitions from each grid point
@@ -525,7 +525,7 @@ elseif useModel==5
     Params.mu_eta=Params.mu_eta1; % Using kirkbyoptions.setmixturemutoenforcezeromean=1
     
     kirkbyoptions.nSigmas=nSigmaz;
-    [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1wGM_Kirkby(Params.rho,Params.mixprobs_eta,Params.mu_eta,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
+    [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1wGM_KFTT(0,Params.rho,Params.mixprobs_eta,Params.mu_eta,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
     % pi_z_J is n_z-by-n_z-by-J, so pi_z_J(:,:,j) is the transition matrix for age j    
     
     % Take a look at how many moments we matched for transitions from each grid point
@@ -658,7 +658,7 @@ elseif useModel==6
     Params.mu_eta=Params.mu_eta1; % Using kirkbyoptions.setmixturemutoenforcezeromean=1
     
     kirkbyoptions.nSigmas=nSigmaz;
-    [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1wGM_Kirkby(Params.rho,Params.mixprobs_eta,Params.mu_eta,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
+    [z_grid_J, pi_z_J,jequaloneDistz,otheroutputs_z] = discretizeLifeCycleAR1wGM_KFTT(0,Params.rho,Params.mixprobs_eta,Params.mu_eta,Params.sigma_eta,n_z,Params.Jr-1,kirkbyoptions); % z_grid_J is n_z-by-J, so z_grid_J(:,j) is the grid for age j
     % pi_z_J is n_z-by-n_z-by-J, so pi_z_J(:,:,j) is the transition matrix for age j    
     
     % Take a look at how many moments we matched for transitions from each grid point

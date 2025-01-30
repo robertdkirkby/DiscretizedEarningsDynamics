@@ -9,7 +9,7 @@ figure_c=0;
 
 useModel_vec=[1,2,3,4,5,6] %[1,2,3,4,5,6]
 
-nSigmaz=2; % number of standard deviations for the max and min points of grid used for z
+nSigmaz_vec=[2,2,2,0.3,2,2]; % number of standard deviations for the max and min points of grid used for z
 nSigma_alpha=1; % number of standard deviations for the max and min points of grid used for alpha (and kappa_beta)
 
 %% Bunch of results for each model
@@ -18,7 +18,7 @@ for useModel=useModel_vec
     
     useModel % Just to make it easy to see the progress
     
-    
+    nSigmaz=nSigmaz_vec(useModel);
     
     %% Dicretized earnings dynamics
     load(['./SavedOutput/Main/BasicOutput',num2str(useModel),'.mat']) %, 'n_d','n_a','n_z','n_upsilon','n_epsilon','n_zupsilon','n_alpha','n_kappabeta','N_i','N_j')
@@ -27,9 +27,10 @@ for useModel=useModel_vec
     % Load everything about the model (that was created and saved by EarningsDynamics.m)
 %     load(['./SavedOutput/Main/PolicySave',num2str(useModel),'.mat'],'Policy') % Not needed at this stage
 %     load(['./SavedOutput/Main/VSave',num2str(useModel),'.mat'],'V') % Not needed for anything
+%     load(['./SavedOutput/Main/StationaryDist',num2str(useModel),'.mat']) % Not needed at this stage
+
     load(['./SavedOutput/Main/RestSave',num2str(useModel),'.mat'])
 
-%     load(['./SavedOutput/Main/StationaryDist_sim',num2str(useModel),'.mat']) % Not needed at this stage
     load(['./SavedOutput/Main/GeneralOutput',num2str(useModel),'.mat'], 'Params','vfoptions','simoptions','a_grid','jequaloneDist','PTypeDist','AgeWeightsParamNames','Names_i')
     
     load(['./SavedOutput/Main/AgeConditionalStats',num2str(useModel),'.mat'])
@@ -65,7 +66,7 @@ for useModel=useModel_vec
         hold on
         for ii=1:N_i
             plot(Params.ageyears,AgeConditionalStats.earnings.(Names_i{ii}).Mean)
-            plot(Params.ageyears,AgeConditionalStats.earnings.(Names_i{ii}).StdDev,'.')
+            plot(Params.ageyears,AgeConditionalStats.earnings.(Names_i{ii}).StdDeviation,'.')
         end
         hold off
         legend(Names_i2)
@@ -73,7 +74,7 @@ for useModel=useModel_vec
         subplot(3,1,3)
         hold on
         plot(Params.ageyears,AgeConditionalStats.earnings.Mean)
-        plot(Params.ageyears,AgeConditionalStats.earnings.StdDev,'.')
+        plot(Params.ageyears,AgeConditionalStats.earnings.StdDeviation,'.')
         hold off
         title('Life-Cycle Profiles of mean earnings and standard deviation for whole population')
         saveas(figure_c,['./SavedOutput/Graphs/EarningsProfiles_Model',num2str(useModel),'.png'])
@@ -93,7 +94,7 @@ for useModel=useModel_vec
         hold on
         for ii=1:N_i
             plot(Params.ageyears,AgeConditionalStats.assets.(Names_i{ii}).Mean)
-            plot(Params.ageyears,AgeConditionalStats.assets.(Names_i{ii}).StdDev,'.')
+            plot(Params.ageyears,AgeConditionalStats.assets.(Names_i{ii}).StdDeviation,'.')
         end
         hold off
         legend(Names_i2)
@@ -121,7 +122,7 @@ for useModel=useModel_vec
         hold on
         for ii=1:N_i
             plot(Params.ageyears,AgeConditionalStats.consumption.(Names_i{ii}).Mean)
-            plot(Params.ageyears,AgeConditionalStats.consumption.(Names_i{ii}).StdDev,'.')
+            plot(Params.ageyears,AgeConditionalStats.consumption.(Names_i{ii}).StdDeviation,'.')
         end
         hold off
         legend(Names_i2)
@@ -226,7 +227,7 @@ save ./SavedOutput/Main/ParamsForModel.mat ParamsForModel
 %% Plot of agent distribution
 for useModel=useModel_vec
     if CreateFiguresAndTables==1
-        load(['./SavedOutput/Main/StationaryDist_sim',num2str(useModel),'.mat'])
+        load(['./SavedOutput/Main/StationaryDist',num2str(useModel),'.mat'])
         load(['./SavedOutput/Main/BasicOutput',num2str(useModel),'.mat'],'N_i')
         load(['./SavedOutput/Main/GeneralOutput',num2str(useModel),'.mat'],'Names_i','a_grid')
         
@@ -329,7 +330,7 @@ ConsumptionInequality(2:end,:)=100*ConsumptionInequality(2:end,:); % (1,:) is th
 
 %Table: Inequality Version 1: By concept
 FID = fopen('./SavedOutput/LatexInputs/EarningsDynamics_InequalityV1.tex', 'w');
-fprintf(FID, 'Inequality:  Share of X held by quintile/top percent \\\\ \n');
+fprintf(FID, 'Inequality: Share of X held by quintile/top percent \\\\ \n');
 fprintf(FID, '\\begin{tabular*}{1.00\\textwidth}{@{\\extracolsep{\\fill}}lccccccccc} \n \\hline \\hline \n');
 fprintf(FID, '& & & & & & & \\multicolumn{3}{c}{Top Groups} \\\\ \\cline{8-10} \n');
 fprintf(FID, '& & \\multicolumn{5}{c}{Quintile} & \\multicolumn{3}{c}{Percentile} \\\\ \\cline{3-7} \\cline{8-10} \n');
@@ -717,22 +718,24 @@ end
 legend('Var[ln(c)]','Var[ln(disp. income)]')
 saveas(figure_c,'./SavedOutput/Graphs/EarningsDynamics_Var_lnc_lndispincome.png')
 
-% Life-cycle profiles for the variance of log consumption and log income
-load ./SavedOutput/Main/ParamsForModel.mat ParamsForModel
+% Redo the previous graph, but this time just showing the working age.
+% (The full graph looks a bit silly because of some silly variance in
+% the earnings process at the end of working life in some of the earnings processes)
 figure_c=figure_c+1;
 figure(figure_c)
 for useModel=useModel_vec
-    load(['./SavedOutput/Main/AgeConditionalStats',num2str(useModel),'.mat'])
+    load(['./SavedOutput/Main/ConsumptionInsurance',num2str(useModel),'.mat'],'VarLogDispIncome_LCP','VarLogCons_LCP')
     Params=ParamsForModel.(['model',num2str(useModel)]);
     
-    subplot(3,2,useModel); plot(Params.ageyears,log(AgeConditionalStats.consumption.Variance),'.')
+    subplot(3,2,useModel); plot(Params.ageyears(1:Params.Jr-1),VarLogCons_LCP(1:Params.Jr-1),'.')
     hold on
-    subplot(3,2,useModel); plot(Params.ageyears,log(AgeConditionalStats.income.Variance),'.')
+    subplot(3,2,useModel); plot(Params.ageyears(1:Params.Jr-1),VarLogDispIncome_LCP(1:Params.Jr-1),'.')
     hold off
     title(['Model', num2str(useModel)])
 end
-legend('Var[ln(c)]','Var[ln(income)]')
-saveas(figure_c,'./SavedOutput/Graphs/EarningsDynamics_Var_lnc_lnincome.png')
+legend('Var[ln(c)]','Var[ln(disp. income)]')
+saveas(figure_c,'./SavedOutput/Graphs/EarningsDynamics_Var_lnc_lndispincome_WorkingAge.png')
+
 
 % Life-cycle profiles for the variance of consumption and disposible income (to show
 % that decreasing variance of consumption in model 2 is an artifact of the log)
@@ -767,7 +770,7 @@ FID = fopen('./SavedOutput/LatexInputs/EarningsDynamics_BPPcoeffs.tex', 'w');
 fprintf(FID, 'Consumption Insurance against Income Shocks \\\\ \n');
 fprintf(FID, '\\begin{tabular*}{1.00\\textwidth}{@{\\extracolsep{\\fill}}lcc} \n \\hline \\hline \n');
 fprintf(FID, ' & \\multicolumn{2}{c}{BPP2008 Consumption Insurance Coeff.s} \\\\ \n');
-fprintf(FID, ' & Persistent & Transitory \\\\ \\hline \n');
+fprintf(FID, ' & Persistent ($\\phi^p$) & Transitory ($\\phi^{tr}$) \\\\ \\hline \n');
 fprintf(FID, 'US Data & 0.36  & 0.95 \\\\ \n');
 fprintf(FID, 'Model 1 & %8.2f & %8.2f \\\\ \n', Table_BPPcoeffs(1,1), Table_BPPcoeffs(1,2));
 fprintf(FID, 'Model 2 & %8.2f & %8.2f \\\\ \n', Table_BPPcoeffs(2,1), Table_BPPcoeffs(2,2));
@@ -920,7 +923,7 @@ saveas(figure_c,'./SavedOutput/Graphs/EarningsDynamics_CompareShocks.png')
 agevec=[1,11,21,31,41];
 legendstr={};
 for useModel=[2,5,6]
-    load(['./SavedOutput/BasicDiscretization/DiscretizedEarnings',num2str(useModel),'nSigmaz',num2str(nSigmaz),'.mat'])
+    load(['./SavedOutput/BasicDiscretization/DiscretizedEarnings',num2str(useModel),'nSigmaz',num2str(nSigmaz),'nSigma_alpha',num2str(nSigma_alpha),'.mat'])
     figure_c=figure_c+1;
     figure(figure_c)
     legendstr{1}=num2str(agevec(1)+Params.agejshifter);

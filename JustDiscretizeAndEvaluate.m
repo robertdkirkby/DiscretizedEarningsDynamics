@@ -8,8 +8,6 @@ Params.J=100-Params.agejshifter; % Number of period in life-cycle
 
 % Note: grid on assets is not relavant to the discretization of the earnings process
 
-n_epsilon=15; % Transitory earnings shock
-
 % Permanent types
 n_alpha=5; % Fixed effect
 
@@ -17,12 +15,21 @@ N_j=Params.J; % Number of periods in finite horizon
 
 % Exogenous states
 % n_z=51; % Persistent earnings shock
+% n_epsilon=21; % Transitory earnings shock
 
 % Table about how much of z grid is being used in various specifications
 TableAboutzgrid=struct();
 
-nzvec=[101,75,31,51];
-% Note: 51 is done last so that the save files just contain the 51 point discretization (it is the one I use for the Life-Cycle models)
+% The one used in the paper is
+% n_z=21; nSigmaz=2; nSigma_alpha=1; n_epsilon=9;
+% nzvec=21;
+% nSigmazvec=2;
+% nSigma_alphavec=1;
+n_epsilon=9; % Transitory earnings shock
+
+
+nzvec=[101,75,51,31,21];
+% Note: 21 is done last so that the save files just contain the 21 point discretization (it is the one I use for the Life-Cycle models)
 % Because it would be weird to use this same ordering of n_z in the tables
 % I also create a version for use in creating tables
 nzvectable=sort(nzvec);

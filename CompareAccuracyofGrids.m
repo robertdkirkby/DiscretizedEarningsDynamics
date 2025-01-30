@@ -11,7 +11,7 @@ Params.J=100-Params.agejshifter; % Number of period in life-cycle
 
 % Note: grid on assets is not relavant to the discretization of the earnings process
 
-n_epsilon=15; % Transitory earnings shock
+n_epsilon=9; % Transitory earnings shock
 
 % Permanent types
 n_alpha=5; % Fixed effect
@@ -21,7 +21,7 @@ N_j=Params.J; % Number of periods in finite horizon
 % Exogenous states
 
 %% 
-nzvec=[101,75,51,41,31,21,11];
+nzvec=[11,17,21,27,31,41,51];
 nSigmazvec=[2,3];
 useModelvec=[3,5,6];
 
@@ -81,7 +81,7 @@ for i1=1:length(nzvec)
             Table_disc_rho(:,i1,i2,i3)=corr_disc_z';
             % unconditional moments
             Table_true_uncondlmean(:,i1,i2,i3)=zeros(41,1);
-            Table_true_uncondlvar(:,i1,i2,i3)=otheroutputs_z.sigma_z';
+            Table_true_uncondlvar(:,i1,i2,i3)=(otheroutputs_z.sigma_z').^2;
             Table_disc_uncondlmean(:,i1,i2,i3)=mean_disc_z(1:41)';
             Table_disc_uncondlvar(:,i1,i2,i3)=variance_disc_z(1:41)';
             % fraction of transitions for which hit 4 moments
@@ -142,11 +142,10 @@ end
 %     fprintf(FID, ' %i & %1.3f & %1.3f & %1.3f & %1.3f \\\\ \n',nzvec(i1), autocorrelation_accuracy(i1,2,6), unconditionalmean_accuracy(i1,2,6), unconditionalvar_accuracy(i1,2,6), Table_disc_fraction4(i1,2,6));
 % end
 fprintf(FID, '\\hline \n \\end{tabular*} \n');
-fprintf(FID, '\\begin{minipage}[t]{1.00\\textwidth}{\\baselineskip=.5\\baselineskip \\vspace{.3cm} \\footnotesize{ \n');
-fprintf(FID, ['Note: Accuracy of the autocorrelation coefficient, the unconditional mean and the unconditional variance are evaluated as the absolute deviation from the true value as a fraction of the true value, averaged over ages. ' ...
-    'Fraction hit four moments is the number of grid points for which the transition probabilities were able to be chosen to hit all four target conditional moments.' ...
-    'Model 3, 5 and 6 are the three models with gaussian-mixture innovations The results reported relate only to the discretization' ...
-    'of the life-cycle AR(1) process. \n']);
+fprintf(FID, '\\\\ \\begin{minipage}[t]{1.00\\textwidth}{\\baselineskip=.5\\baselineskip \\vspace{.3cm} \\footnotesize{ \n');
+fprintf(FID, 'Note: Accuracy of the autocorrelation coefficient, the unconditional mean and the unconditional variance are evaluated as the deviation from the true value as a fraction of the true value, averaged over ages. ');
+fprintf(FID, 'Fraction hit four moments is the number of grid points for which the transition probabilities were able to be chosen to hit all four target conditional moments.');
+fprintf(FID, 'The results reported relate to the discretization of the life-cycle AR(1) process in Model 5. \n');
 fprintf(FID, '}} \\end{minipage}');
 fclose(FID);
 
