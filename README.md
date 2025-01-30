@@ -11,7 +11,7 @@ There is also one for life-cycle AR(1) with gaussian iinovations: https://github
 [KFTT=Kirkby-Farmer-Tanaka-Toda]
 
 ------------------------------------------------------
-Following explains how to run the codes to generate all the results in the paper.
+Following explains how to run the codes to generate all the results in the paper (all Tables and Figures).
 
 First run 'JustDiscretizeAndEvaluate.m'
 This creates all the discretizations, including a variety of grid sizes (n_z) and other settings.
