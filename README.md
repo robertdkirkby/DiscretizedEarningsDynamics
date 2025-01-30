@@ -18,7 +18,7 @@ The EarningsDynamics.m can be run in pieces using 'preCalib','doCalib','SolveVan
 Then run 'EarningsDynamics_CreateResults.m' which loads things created previously and uses them to create some graphs and tables.
 (Many graphs and tables are also created by the earlier codes)
 
-'CompareAccuracyOfGrids.m' creates Appendix C of the paper (about accuracy of the discretization for different grid sizes)
+'CompareAccuracyOfGrids.m' creates the Appendix of the paper about accuracy of the discretization for different grid sizes.
 
 Note: For reasons unclear 'JustDiscretizeAndEvaluate.m' runs fine on my laptop but fails on my desktop. Matlab errors are unclear on why this might be?
 
